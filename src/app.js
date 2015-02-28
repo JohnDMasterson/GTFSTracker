@@ -37,7 +37,10 @@ if(favCoords === null) {
   favCoords = [];
 }
 //localStorage.setItem('favCoords', JSON.stringify(favCoords));
-//var favStations = JSON.parse(localStorage.getItem('favStations') || null);
+var favStations = JSON.parse(localStorage.getItem('favStations') || null);
+if(favStations === null) {
+  favStations = [];
+}
 
 var selectedStation = {
   line: '',
@@ -107,43 +110,40 @@ function getStations() {
 }
 
 //Requests stations close to you, and lists them
-function getStationsCloseToMe(pos){
-  var req = {
-    lat: pos.coords.latitude,
-    lon: pos.coords.longitude,
-    radius: 10
-  };
-  postData("/close_stations", req, 
-    function (stations) {
-      var sList = [];
-      for(var i = 0; i < stations.length; i++) {
-        sList[i]={
-          title: stations[i].name,
-          subtitle: stations[i].id
-        };
-      }
-      var stationMenu = new UI.Menu({
-      sections: [{
-        title: 'Stations',
-        items: sList
-      }]
-    });
-    stationMenu.show();
-  }, 
-  function(error) {
-    console.log(error);
-  });
-}
-
-function getLocation() {
+function getStationsCloseToMe(){
   function locationSuccess(pos) {
-    return pos;
-  }
-  function locationError(err) {
-    console.log('location error (' + err.code + '): ' + err.message + '\n');
-    return null;
-  }
-  navigator.geolocation.getCurrentPosition(locationSuccess, locationError, locationOptions);
+    var req = {
+      lat: pos.coords.latitude,
+      lon: pos.coords.longitude,
+      radius: 10
+    };
+    postData("/close_stations", req, 
+      function (stations) {
+        var sList = [];
+        for(var i = 0; i < stations.length; i++) {
+          sList[i]={
+            title: stations[i].name,
+            subtitle: stations[i].id
+          };
+        }
+        var stationMenu = new UI.Menu({
+        sections: [{
+          title: 'Stations',
+          items: sList
+        }]
+      });
+      stationMenu.show();
+    }, 
+    function(error) {
+      console.log(error);
+    });
+        }
+    function locationError(err) {
+      console.log('location error (' + err.code + '): ' + err.message + '\n');
+      return null;
+    }
+    navigator.geolocation.getCurrentPosition(locationSuccess, locationError, locationOptions);
+
 }
 
 //Adds current location to favorites list
@@ -188,6 +188,9 @@ function fm() {
     sections: [{
       title: "Saved Locations",
       items: favCoords
+    },{
+      title: "Saved Stations",
+      items: favStations
     }]
   });
   favoritesMenu.show();
@@ -208,7 +211,7 @@ function sm() {
   //Stations callbacks
   stationsMenu.on('select', function(e){
     if(e.item.title === 'Stations Near Me') {
-      getStationsCloseToMe(getLocation());
+      getStationsCloseToMe();
     }else if(e.item.title === 'All Stations') {
       getStations();
     }
@@ -227,10 +230,16 @@ function ssm() {
     }]
   });
   stationsSelectMenu.on('select', function(e){
-    if(e.item.title === 'Stations Near Me') {
-      getStationsCloseToMe(getLocation());
-    }else if(e.item.title === 'All Stations') {
-      getStations();
+    if(e.item.title === 'Add Station to Favorites') {
+          var newStation = {
+            title: selectedStation.name,
+            line: selectedStation.line,
+            subtitle: selectedStation.id
+          };
+          favStations[favStations.length] = newStation;
+          localStorage.setItem('favStations', JSON.stringify(favStations));
+    }else if(e.item.title === 'View Station Schedule') {
+      //viewStationSchedule();
     }
   });
   stationsSelectMenu.show();
@@ -243,7 +252,7 @@ function lm() {
       items: [{
         title: 'Add to Favorites'
       },{
-        title: 'Time Till Train Arrives' 
+        title: 'Trains Coming Soon' 
       }]
     }]
   });

@@ -24,6 +24,10 @@
         <br>
     <select ng-model="arriveStationsModel" ng-options="station.name for station in stationsList" ng-change="test()">
     </select>
+    <button ng-click="getStationsNearMe()">get stations near me</button>
+    <button ng-click="getFutureTrains()">get future trains</button>
+    <button ng-click="getCrossings()">get crossings</button>
+    <button ng-click="getBlockedCrossings()">get blocked crossings</button>
         <br>
         {{result}}
     </body>

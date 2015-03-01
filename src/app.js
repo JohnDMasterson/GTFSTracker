@@ -247,9 +247,9 @@ function closeCrossings(){
         closeMenu.on('select', function(e){
               var url = "https://maps.googleapis.com/maps/api/staticmap";
               var args = "?zoom=12&scale=1&size=100x120&format=png32&style=feature:all%7Cvisibility:simplified&style=feature:all%7Celement:labels%7Cvisibility:off&style=feature:all%7Csaturation:+100&key=AIzaSyBN4-GpcNRDWsfyfzMdDZ52YEWWouCkOc4";
-              var args2 = "&style=feature:road%7Celement:geometry%7Ccolor:0x000000%7Cvisibility:on&center="+e.item.subtitle + "#width:100";
-              var completeURL = url + args + args2;
-              console.log("URL is :" + completeURL);
+              var args2 = "&style=feature:road%7Celement:geometry%7Ccolor:0x000000%7Cvisibility:on&center="+e.item.subtitle;
+              var marker = "&markers=color:0x00FF00%7Clabel:R%7C" + e.item.subtitle  + "#width:100";
+              var completeURL = url + args + args2 + marker;
               var win = new UI.Window();
               var map = new UI.Image({
                 position: new Vector2(0, 0),
@@ -343,8 +343,9 @@ function mapMyLocation(){
   function locationSuccess(pos) {
     var url = "https://maps.googleapis.com/maps/api/staticmap";
     var args = "?zoom=12&scale=1&size=100x120&format=png32&style=feature:all%7Cvisibility:simplified&style=feature:all%7Celement:labels%7Cvisibility:off&style=feature:all%7Csaturation:+100&key=AIzaSyBN4-GpcNRDWsfyfzMdDZ52YEWWouCkOc4";
-    var args2 = "&style=feature:road%7Celement:geometry%7Ccolor:0x000000%7Cvisibility:on&center="+pos.coords.latitude+","+pos.coords.longitude + "#width:100";
-    var completeURL = url + args + args2;
+    var args2 = "&style=feature:road%7Celement:geometry%7Ccolor:0x000000%7Cvisibility:on&center="+pos.coords.latitude+","+pos.coords.longitude;
+    var marker = "&markers=color:0x00FF00%7Clabel:R%7C" +pos.coords.latitude+","+pos.coords.longitude+ "#width:100";
+    var completeURL = url + args + args2 + marker;
     console.log("URL is :" + completeURL);
     var win = new UI.Window();
     var map = new UI.Image({

@@ -251,6 +251,103 @@ function ssm() {
   stationsSelectMenu.show();
 }
 
+function closeCrossings(){
+    function locationSuccess(pos) {
+    var req = {
+      lat: pos.coords.latitude,
+      lon: pos.coords.longitude,
+      radius: 10,
+      max: 10
+    };
+    postData("/close_crossings", req, 
+      function (crossings) {
+        var cList = [];
+        var closeMenu = new UI.Menu({
+        sections: [{
+          title: 'crossings',
+          items: cList
+        }]
+      });
+      for(var crossing in crossings) {
+        cList.push({
+          title: crossing.street,
+          subtitle: crossing.latitude + ',' + crossing.longitud
+        });
+      }
+      closeMenu.show();
+    }, 
+    function(error) {
+      console.log(error);
+    });
+        }
+    function locationError(err) {
+      console.log('location error (' + err.code + '): ' + err.message + '\n');
+      return null;
+    }
+    navigator.geolocation.getCurrentPosition(locationSuccess, locationError, locationOptions);
+
+
+}
+
+function downCrossings(){
+    function locationSuccess(pos) {
+    var req = {
+      lat: pos.coords.latitude,
+      lon: pos.coords.longitude,
+      radius: 10,
+      max: 10
+    };
+    postData("/blocked_crossings", req, 
+      function (crossings) {
+        var cList = [];
+        var downMenu = new UI.Menu({
+        sections: [{
+          title: 'crossings',
+          items: cList
+        }]
+      });
+      for(var crossing in crossings) {
+        cList.push({
+          title: crossing.street,
+          subtitle: crossing.latitude + ',' + crossing.longitud
+        });
+      }
+      downMenu.show();
+    }, 
+    function(error) {
+      console.log(error);
+    });
+        }
+    function locationError(err) {
+      console.log('location error (' + err.code + '): ' + err.message + '\n');
+      return null;
+    }
+    navigator.geolocation.getCurrentPosition(locationSuccess, locationError, locationOptions);
+
+}
+
+function cm() {
+  var crossingsMenu = new UI.Menu({
+    sections: [{
+      items: [{
+        title: 'Close Crossings'
+      },{
+        title: 'Down Crossings' 
+      }]
+    }]
+  });
+
+  //Locations callbacks
+  crossingsMenu.on('select', function(e){
+    if(e.itemIndex === 0) {
+      closeCrossings();
+    }else if(e.itemIndex === 1) {
+      downCrossings();
+    }
+  });
+  crossingsMenu.show();
+}
+
 //Setting up the locations menu
 function lm() {
   var locationsMenu = new UI.Menu({
@@ -289,6 +386,8 @@ function init(){
       },{
         title: 'Stations'
       },{
+        title: 'Crossings'
+      },{
         title: 'My Location'
       }]
     }]
@@ -301,6 +400,8 @@ function init(){
     }else if (e.itemIndex === 1) {
       sm();
     }else if (e.itemIndex === 2) {
+      cm();
+    }else if (e.itemIndex === 3) {
       lm();
     }
   });

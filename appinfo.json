@@ -1,7 +1,8 @@
 {
     "appKeys": {},
     "capabilities": [
-        "location"
+        "location",
+        "configurable"
     ],
     "companyName": "masters6@purdue.edu",
     "longName": "GTFS Tracker",
@@ -29,9 +30,9 @@
                 "type": "font"
             },
             {
-                "file": "images/menu.png",
+                "file": "images/GTFS.png",
                 "menuIcon": true,
-                "name": "IMAGES_MENU_PNG",
+                "name": "IMAGES_GTFS_PNG",
                 "type": "png"
             }
         ]

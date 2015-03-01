@@ -76,6 +76,22 @@ function postData(path, request, onSuccess, onFail) {
 }
 
 
+
+//Favorites Menu
+function fm() {
+  var favoritesMenu = new UI.Menu({
+    sections: [{
+      title: "Saved Locations",
+      items: favCoords
+    },{
+      title: "Saved Stations",
+      items: favStations
+    }]
+  });
+  favoritesMenu.show();
+}
+
+
 //Gets a list of stations and creates a menu for them
 function getStations() {
   postData("/stations",
@@ -148,59 +164,6 @@ function getStationsCloseToMe(){
 
 }
 
-//Adds current location to favorites list
-function addCurrentLocationToFavorites() {
-  function locationSuccess(pos) {
-    var newLoc = {
-      title: 'Pootis',
-      lat: pos.coords.latitude,
-      lon: pos.coords.longitude
-    };
-    favCoords[favCoords.length] = newLoc;
-    localStorage.setItem('favCoords', JSON.stringify(favCoords));
-  }
-  function locationError(err) {
-    console.log('location error (' + err.code + '): ' + err.message + '\n');
-  }
-  navigator.geolocation.getCurrentPosition(locationSuccess, locationError, locationOptions);
-}
-
-function mapMyLocation(){
-  function locationSuccess(pos) {
-    var url = "https://maps.googleapis.com/maps/api/staticmap";
-    var args = "?zoom=12&scale=1&size=100x120&format=png32&style=feature:all%7Cvisibility:simplified&style=feature:all%7Celement:labels%7Cvisibility:off&style=feature:all%7Csaturation:+100&key=AIzaSyBN4-GpcNRDWsfyfzMdDZ52YEWWouCkOc4";
-    var args2 = "&style=feature:road%7Celement:geometry%7Ccolor:0x000000%7Cvisibility:on&center="+pos.coords.latitude+","+pos.coords.longitude + "#width:100";
-    var completeURL = url + args + args2;
-    console.log("URL is :" + completeURL);
-    var win = new UI.Window();
-    var map = new UI.Image({
-      position: new Vector2(0, 0),
-      image: completeURL
-    });
-    win.add(map);
-    win.show();
-        
-  }
-  function locationError(err) {
-    console.log('location error (' + err.code + '): ' + err.message + '\n');
-  }
-  navigator.geolocation.getCurrentPosition(locationSuccess, locationError, locationOptions);
-}
-
-
-//Favorites Menu
-function fm() {
-  var favoritesMenu = new UI.Menu({
-    sections: [{
-      title: "Saved Locations",
-      items: favCoords
-    },{
-      title: "Saved Stations",
-      items: favStations
-    }]
-  });
-  favoritesMenu.show();
-}
 
 //Setting up the stations menu
 function sm() {
@@ -268,12 +231,34 @@ function closeCrossings(){
           items: cList
         }]
       });
-      for(var crossing in crossings) {
+      if(crossings.length === 0) {        
         cList.push({
-          title: crossing.street,
-          subtitle: crossing.latitude + ',' + crossing.longitud
+          title: 'No Close Crossings',
+          subtitle: '-_-'
         });
-      }
+      }else{
+        for(var i=0, ii=((req.max<crossings.length)?req.max:crossings.length); i<ii; i++) {
+          console.log(crossings[i]);
+          cList.push({
+            title: crossings[i].STREET,
+            subtitle: crossings[i].LATITUDE + ',' + crossings[i].LONGITUD
+          });
+        }
+        closeMenu.on('select', function(e){
+              var url = "https://maps.googleapis.com/maps/api/staticmap";
+              var args = "?zoom=12&scale=1&size=100x120&format=png32&style=feature:all%7Cvisibility:simplified&style=feature:all%7Celement:labels%7Cvisibility:off&style=feature:all%7Csaturation:+100&key=AIzaSyBN4-GpcNRDWsfyfzMdDZ52YEWWouCkOc4";
+              var args2 = "&style=feature:road%7Celement:geometry%7Ccolor:0x000000%7Cvisibility:on&center="+e.item.subtitle + "#width:100";
+              var completeURL = url + args + args2;
+              console.log("URL is :" + completeURL);
+              var win = new UI.Window();
+              var map = new UI.Image({
+                position: new Vector2(0, 0),
+                image: completeURL
+              });
+              win.add(map);
+              win.show();
+                  });
+          }
       closeMenu.show();
     }, 
     function(error) {
@@ -285,8 +270,6 @@ function closeCrossings(){
       return null;
     }
     navigator.geolocation.getCurrentPosition(locationSuccess, locationError, locationOptions);
-
-
 }
 
 function downCrossings(){
@@ -308,8 +291,14 @@ function downCrossings(){
       });
       for(var crossing in crossings) {
         cList.push({
-          title: crossing.street,
-          subtitle: crossing.latitude + ',' + crossing.longitud
+          title: crossing.STREET,
+          subtitle: crossing.LATITUDE + ',' + crossing.LONGITUD
+        });
+      }
+      if(crossing.length === 0) {        
+        cList.push({
+          title: 'No Blocked Crossings',
+          subtitle: '^_^'
         });
       }
       downMenu.show();
@@ -347,6 +336,49 @@ function cm() {
   });
   crossingsMenu.show();
 }
+
+
+
+function mapMyLocation(){
+  function locationSuccess(pos) {
+    var url = "https://maps.googleapis.com/maps/api/staticmap";
+    var args = "?zoom=12&scale=1&size=100x120&format=png32&style=feature:all%7Cvisibility:simplified&style=feature:all%7Celement:labels%7Cvisibility:off&style=feature:all%7Csaturation:+100&key=AIzaSyBN4-GpcNRDWsfyfzMdDZ52YEWWouCkOc4";
+    var args2 = "&style=feature:road%7Celement:geometry%7Ccolor:0x000000%7Cvisibility:on&center="+pos.coords.latitude+","+pos.coords.longitude + "#width:100";
+    var completeURL = url + args + args2;
+    console.log("URL is :" + completeURL);
+    var win = new UI.Window();
+    var map = new UI.Image({
+      position: new Vector2(0, 0),
+      image: completeURL
+    });
+    win.add(map);
+    win.show();
+        
+  }
+  function locationError(err) {
+    console.log('location error (' + err.code + '): ' + err.message + '\n');
+  }
+  navigator.geolocation.getCurrentPosition(locationSuccess, locationError, locationOptions);
+}
+
+
+//Adds current location to favorites list
+function addCurrentLocationToFavorites() {
+  function locationSuccess(pos) {
+    var newLoc = {
+      title: 'Pootis',
+      lat: pos.coords.latitude,
+      lon: pos.coords.longitude
+    };
+    favCoords[favCoords.length] = newLoc;
+    localStorage.setItem('favCoords', JSON.stringify(favCoords));
+  }
+  function locationError(err) {
+    console.log('location error (' + err.code + '): ' + err.message + '\n');
+  }
+  navigator.geolocation.getCurrentPosition(locationSuccess, locationError, locationOptions);
+}
+
 
 //Setting up the locations menu
 function lm() {
